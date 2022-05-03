@@ -14,7 +14,7 @@ describe("Voting contract", () => {
 
     const voteDuration = 3 * 24 * 60 * 60;
     const voteFee = ethers.utils.parseEther("0.01");
-    const contractFeePerent = 10;
+    const contractFee = 0.1;
 
     beforeEach(async () => {
         factoryVoting = await ethers.getContractFactory("Voting");
@@ -222,16 +222,62 @@ describe("Voting contract", () => {
             expect(finished).equal(false);
         });
 
-        it("Finish functionality works", async () => {
+        it("Winner is rewarded", async () => {
             await Voting.addVoting([addr1.address, addr2.address]);
+
+            await Voting.vote(0, addr1.address, {value: voteFee});
 
             await provider.send('evm_increaseTime', [voteDuration]);
             await provider.send('evm_mine');
 
+            const beforeBalance = await addr1.getBalance();
             await Voting.finish(0);
+            const afterBalance = await addr1.getBalance();
+            const reward = afterBalance.sub(beforeBalance).toString();
+            const rewardExpected = (voteFee * 0.9).toString();
+
+            expect(reward).to.equal(rewardExpected);
 
             [_, _, _, _, finished, _] = await Voting.votingInfo(0);
             expect(finished).equal(true);
+        });
+
+        it("No double reward", async () => {
+            await Voting.addVoting([addr1.address, addr2.address]);
+
+            await Voting.vote(0, addr1.address, {value: voteFee});
+
+            await provider.send('evm_increaseTime', [voteDuration]);
+            await provider.send('evm_mine');
+
+            const beforeBalance = await addr1.getBalance();
+            await Voting.finish(0);
+            const afterBalance = await addr1.getBalance();
+            const reward = afterBalance.sub(beforeBalance).toString();
+            const rewardExpected = (voteFee * (1 - contractFee)).toString();
+
+            expect(reward).to.equal(rewardExpected);
+
+            await Voting.finish(0);
+            const afterSecondFinish = await addr1.getBalance();
+
+            expect(afterBalance.toString()).to.equal(afterSecondFinish.toString());
+        });
+    });
+
+    describe("Withdraw function", () => {
+        it("Only owner can withdraw", async () => {
+            await Voting.addVoting([addr1.address, addr2.address]);
+            await Voting.addVoting([addr1.address, addr2.address]);
+
+            await Voting.connect(addr1).vote(0, addr1.address, {value: voteFee});
+            await Voting.connect(addr2).vote(1, addr2.address, {value: voteFee});
+
+            await Voting.withdraw();
+
+            await expect(
+                Voting.connect(addrs[0]).withdraw()
+            ).to.be.revertedWith("Ownable: caller is not the owner");
         });
     });
 
