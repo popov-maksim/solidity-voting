@@ -1,5 +1,3 @@
-const { types } = require("hardhat/config");
-
 task("withdraw", "Owner can withdraw collected commision")
   .addParam("address", "Contract address")
   .setAction(async (taskArgs) => {
