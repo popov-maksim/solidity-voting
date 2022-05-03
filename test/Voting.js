@@ -235,41 +235,4 @@ describe("Voting contract", () => {
         });
     });
 
-    // describe("Transactions", () => {
-    //     it("Should transfer tokens between acciunts", async function() {
-    //         const [owner, addr1, addr2] = await ethers.getSigners();
-    //         const Voting = await ethers.getContractFactory("Voting");
-    //         const hardhatVoting = await Voting.deploy();
-
-    //         await hardhatVoting.transfer(addr1.address, 50);
-    //         expect(await hardhatVoting.balanceOf(addr1.address)).to.equal(50);
-
-    //         await hardhatVoting.connect(addr1).transfer(addr2.address, 50);
-    //         expect(await hardhatVoting.balanceOf(addr2.address)).to.equal(50);
-    //     });
-
-    //     it("Should fail if sender doesn't have enough tokens", async () => {
-    //         const initialOwnerBalance = await hardhatVoting.balanceOf(owner.address);
-    //         await expect(
-    //             hardhatVoting.connect(addr1).transfer(owner.address, 1)
-    //         ).to.be.revertedWith("Not enough tokens");
-    //         expect(await hardhatVoting.balanceOf(owner.address)).to.equal(initialOwnerBalance);
-    //     });
-
-    //     it("Should update balances after transfers", async () => {
-    //         const initialOwnerBalance = await hardhatVoting.balanceOf(owner.address);
-
-    //         await hardhatVoting.transfer(addr1.address, 100);
-    //         await hardhatVoting.transfer(addr2.address, 50);
-
-    //         const finalOwnerBalance = await hardhatVoting.balanceOf(owner.address);
-    //         expect(finalOwnerBalance).to.equal(initialOwnerBalance.sub(150));
-
-    //         const addr1Balance = await hardhatVoting.balanceOf(addr1.address);
-    //         expect(addr1Balance).to.equal(100);
-
-    //         const addr2Balance = await hardhatVoting.balanceOf(addr2.address);
-    //         expect(addr2Balance).to.equal(50);
-    //     });
-    // });
 });
